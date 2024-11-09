@@ -12,8 +12,6 @@ UI["1"] = Instance.new("ScreenGui", a)
 UI["1"]["Name"] = [[Yielded]]
 UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
 
-
-
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen \\ --
 UI["2"] = Instance.new("Frame", UI["1"])
 UI["2"]["BorderSizePixel"] = 0
@@ -62,7 +60,7 @@ UI["7"]["FlexMode"] = Enum.UIFlexMode.Fill
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UISizeConstraint \\ --
 UI["8"] = Instance.new("UISizeConstraint", UI["5"])
 UI["8"]["MinSize"] = Vector2.new(25, 25)
-UI["8"]["MaxSize"] = Vector2.new(431.46075, 100000)
+UI["8"]["MaxSize"] = Vector2.new(201, 100000)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent \\ --
 UI["9"] = Instance.new("Frame", UI["5"])
@@ -120,7 +118,7 @@ UI["e"]["Name"] = [[ResizeHandle_N]]
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale \\ --
 UI["f"] = Instance.new("UIScale", UI["1"])
-
+UI["f"]["Scale"] = 2
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale.AutoScale \\ --
 UI["10"] = Instance.new("LocalScript", UI["f"])
@@ -270,7 +268,15 @@ local script = UI["b"]
 	Input.InputChanged:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if Pressed and SavedPosition then
 			local Frame = script.Parent.Parent.Parent;
-			SavedPosition = Vector2.new(Mouse.X - Frame.AbsolutePosition.X, 100000)
+			local UIScale = script.Parent.Parent.Parent.Parent.Parent.UIScale
+			
+			local Calc = math.clamp(
+				Mouse.X - math.round(Frame.AbsoluteSize.X) / 2, 
+				0, 
+				math.huge
+			);
+			
+			SavedPosition = Vector2.new(Calc, 100000)
 			
 			game.TweenService:Create(
 				Frame.UISizeConstraint,
