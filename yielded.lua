@@ -1,13 +1,18 @@
 -- // GUI TO LUA \\ --
 
--- // INSTANCES: 15 | SCRIPTS: 1 | MODULES: 0 \\ --
+-- // INSTANCES: 16 | SCRIPTS: 2 | MODULES: 0 \\ --
 
 local UI = {}
-
+local a = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+if a:FindFirstChild("Yielded") then
+	a.Yielded:Destroy()
+end
 -- // Players.CheckCashedV8.PlayerGui.Yielded \\ --
-UI["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
+UI["1"] = Instance.new("ScreenGui", a)
 UI["1"]["Name"] = [[Yielded]]
 UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+
+
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen \\ --
 UI["2"] = Instance.new("Frame", UI["1"])
@@ -57,7 +62,7 @@ UI["7"]["FlexMode"] = Enum.UIFlexMode.Fill
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UISizeConstraint \\ --
 UI["8"] = Instance.new("UISizeConstraint", UI["5"])
 UI["8"]["MinSize"] = Vector2.new(25, 25)
-UI["8"]["MaxSize"] = Vector2.new(204, 100000)
+UI["8"]["MaxSize"] = Vector2.new(431.46075, 100000)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent \\ --
 UI["9"] = Instance.new("Frame", UI["5"])
@@ -117,6 +122,10 @@ UI["e"]["Name"] = [[ResizeHandle_N]]
 UI["f"] = Instance.new("UIScale", UI["1"])
 
 
+-- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale.AutoScale \\ --
+UI["10"] = Instance.new("LocalScript", UI["f"])
+UI["10"]["Name"] = [[AutoScale]]
+
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent.ResizeHandle_E.LocalScript \\ --
 local function SCRIPT_b()
 local script = UI["b"]
@@ -147,7 +156,7 @@ local script = UI["b"]
 		local scaleFactorY = currentResolutionY / baseResolutionY;
 		local averageScaleFactor = (scaleFactorX + scaleFactorY) / 2;
 	
-		uiScale.Scale = baseScale * averageScaleFactor;
+		uiScale.Scale = math.clamp(baseScale * averageScaleFactor, 1, math.huge);
 	end
 	
 	local function CustomCursor(SizeInOffset: number)
@@ -204,7 +213,7 @@ local script = UI["b"]
 			this.ScreenGui.DisplayOrder = 99999999;
 			
 			this.UIScale = Instance.new("UIScale", this.ScreenGui)
-			AutoScaleGui(this.UIScale, this.ScreenGui, 1, true)
+			AutoScaleGui(this.UIScale, this.ScreenGui, 1, false)
 			
 			this.ImageLabel = Instance.new("ImageLabel", this.ScreenGui);
 			this.ImageLabel.BackgroundTransparency = 1;
@@ -231,7 +240,7 @@ local script = UI["b"]
 		}), data) :: Class;
 	end;
 	
-	local newCursor = CustomCursor(40);
+	local newCursor = CustomCursor(50);
 	
 	script.Parent.MouseEnter:Connect(function()
 		MouseEntered = true
@@ -279,5 +288,35 @@ local script = UI["b"]
 	end)
 end
 task.spawn(SCRIPT_b)
+-- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale.AutoScale \\ --
+local function SCRIPT_10()
+local script = UI["10"]
+	local ScreenGui = script:FindFirstAncestorWhichIsA('ScreenGui');
+	
+	ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+		print(ScreenGui.AbsoluteSize);
+	end);
+	
+	script.Parent:GetPropertyChangedSignal("Scale"):Connect(function()
+		print(script.Parent.Scale)
+	end)
+	
+	local baseResolutionX = 1920
+	local baseResolutionY = 1080
+	local baseScale = 1.5
+	
+	local currentResolutionX = ScreenGui.AbsoluteSize.X
+	local currentResolutionY = ScreenGui.AbsoluteSize.Y
+	
+	-- Calculate scale factor based on the base resolution
+	local scaleFactorX = currentResolutionX / baseResolutionX
+	local scaleFactorY = currentResolutionY / baseResolutionY
+	local averageScaleFactor = (scaleFactorX + scaleFactorY) / 2
+	
+	-- Set UIScale based on the calculated scale factor
+	
+	script.Parent.Scale = math.clamp(baseScale * averageScaleFactor, 1, math.huge)
+end
+task.spawn(SCRIPT_10)
 
 return UI["1"], require;
