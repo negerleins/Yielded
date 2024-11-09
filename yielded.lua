@@ -60,7 +60,7 @@ UI["7"]["FlexMode"] = Enum.UIFlexMode.Fill
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UISizeConstraint \\ --
 UI["8"] = Instance.new("UISizeConstraint", UI["5"])
 UI["8"]["MinSize"] = Vector2.new(25, 25)
-UI["8"]["MaxSize"] = Vector2.new(201, 100000)
+UI["8"]["MaxSize"] = Vector2.new(263, 350.39999)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent \\ --
 UI["9"] = Instance.new("Frame", UI["5"])
@@ -269,21 +269,17 @@ local script = UI["b"]
 		if Pressed and SavedPosition then
 			local Frame = script.Parent.Parent.Parent;
 			local UIScale = script.Parent.Parent.Parent.Parent.Parent.UIScale
-			
-			local Calc = math.clamp(
-				Mouse.X - math.round(Frame.AbsoluteSize.X) / 2, 
-				0, 
-				math.huge
-			);
-			
-			SavedPosition = Vector2.new(Calc, 100000)
-			
+	
+			local screenWidth = workspace.CurrentCamera.ViewportSize.X
+			local Calc = math.clamp(Mouse.X - math.round(Frame.AbsoluteSize.X) / 2, 0, screenWidth)
+	
+			local SavedPosition = Vector2.new(Calc, Frame.AbsoluteSize.Y)
+	
 			game.TweenService:Create(
 				Frame.UISizeConstraint,
 				TweenInfo.new(0.15),
 				{
-					MaxSize = 
-						SavedPosition
+					MaxSize = SavedPosition
 				}
 			):Play()
 		end;
