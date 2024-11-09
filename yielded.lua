@@ -1,3 +1,7 @@
+-- // GUI TO LUA \\ --
+
+-- // INSTANCES: 17 | SCRIPTS: 3 | MODULES: 0 \\ --
+
 local UI = {}
 
 local a = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
@@ -8,6 +12,9 @@ end
 UI["1"] = Instance.new("ScreenGui", a)
 UI["1"]["Name"] = [[Yielded]]
 UI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+-- Attributes
+UI["1"]:SetAttribute([[MouseEntered]], false)
+UI["1"]:SetAttribute([[Pressed]], false)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen \\ --
 UI["2"] = Instance.new("Frame", UI["1"])
@@ -57,7 +64,7 @@ UI["7"]["FlexMode"] = Enum.UIFlexMode.Fill
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UISizeConstraint \\ --
 UI["8"] = Instance.new("UISizeConstraint", UI["5"])
 UI["8"]["MinSize"] = Vector2.new(25, 25)
-UI["8"]["MaxSize"] = Vector2.new(391, 174)
+UI["8"]["MaxSize"] = Vector2.new(552, 62)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent \\ --
 UI["9"] = Instance.new("Frame", UI["5"])
@@ -136,9 +143,8 @@ local script = UI["b"]
 	local Players = game:GetService("Players")
 	local Mouse = Players.LocalPlayer:GetMouse()
 	
+	local __ScreenGui = script:FindFirstAncestorWhichIsA("ScreenGui")
 	local SavedPosition = Vector2.new();
-	local MouseEntered, Pressed = false, false;
-	local DefaultMouseIcon = Input.MouseIcon
 	
 	local function AutoScaleGui(
 		uiScale: UIScale, 
@@ -148,11 +154,11 @@ local script = UI["b"]
 	)
 		local currentResolutionX = screenGui.AbsoluteSize.X;
 		local currentResolutionY = screenGui.AbsoluteSize.Y;
-		
+	
 		local baseResolutionX = sizeFromCurrent and currentResolutionX or 1920;
 		local baseResolutionY = sizeFromCurrent and currentResolutionY or 1080;
 		local baseScale = 1;
-		
+	
 		local scaleFactorX = currentResolutionX / baseResolutionX;
 		local scaleFactorY = currentResolutionY / baseResolutionY;
 		local averageScaleFactor = (scaleFactorX + scaleFactorY) / 2;
@@ -168,14 +174,14 @@ local script = UI["b"]
 			Connection: RBXScriptConnection,
 			DefaultCursor: string
 		};
-		
+	
 		type Meta = {
 			set: (self: Class, Image: string) -> nil,
 			default: (self: Class) -> nil,
 			toggle: (self: Class) -> nil,
 			disable: (self: Class) -> nil
 		} & Class;
-		
+	
 		local data = {
 			set = function(self: Meta, Image: string)
 				Content:PreloadAsync({ Image });
@@ -190,38 +196,40 @@ local script = UI["b"]
 			disable = function(self: Meta)
 				self.Connection:Disconnect();
 				self.ScreenGui:Destroy();
-				
+	
 				Input.MouseIconEnabled = true;
 			end
 		};
-		
+	
 		data.__index = data;
 		data.__metatable = "getmetatable() -> Is not allowed.";
-		
+	
 		return setmetatable((function(this: Meta)
 			Input.MouseIconEnabled = false;
-			
+	
 			local Parent: Instance = game:FindFirstChild("CoreGui") 
 				or game.Players.LocalPlayer.PlayerGui;
-			
-			if Parent:FindFirstChild("CustomCursor") then
-				Parent.CustomCursor:Destroy();
-			end;
-			
-			this.ScreenGui = Instance.new("ScreenGui", Parent);
+	
+			this.ScreenGui = Parent:FindFirstChild("CustomCursor")
+			if this.ScreenGui then
+				this.ImageLabel = this.ScreenGui:FindFirstChild("ImageLabel")
+				this.UIScale = this.ScreenGui:FindFirstChild("UIScale")
+			end
+	
+			this.ScreenGui = this.ScreenGui or Instance.new("ScreenGui", Parent);
 			this.ScreenGui.Name = "CustomCursor";
 			this.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 			this.ScreenGui.DisplayOrder = 99999999;
-			
-			this.UIScale = Instance.new("UIScale", this.ScreenGui)
+	
+			this.UIScale = this.UIScale or Instance.new("UIScale", this.ScreenGui)
 			AutoScaleGui(this.UIScale, this.ScreenGui, 1, false)
-			
-			this.ImageLabel = Instance.new("ImageLabel", this.ScreenGui);
+	
+			this.ImageLabel = this.ImageLabel or Instance.new("ImageLabel", this.ScreenGui);
 			this.ImageLabel.BackgroundTransparency = 1;
 			this.ImageLabel.Interactable = false;
 			this.ImageLabel.Image = this.DefaultCursor;
 			this.ImageLabel.Size = UDim2.fromOffset(SizeInOffset, SizeInOffset);
-			
+	
 			this.Connection = Input.InputChanged:Connect(function(input: InputObject)
 				if input.UserInputType == Enum.UserInputType.MouseMovement then
 					this.ImageLabel.Position = UDim2.fromOffset(
@@ -230,7 +238,7 @@ local script = UI["b"]
 					);
 				end;
 			end);
-			
+	
 			return this;
 		end)({ 
 			ScreenGui = nil, 
@@ -238,25 +246,30 @@ local script = UI["b"]
 			UIScale = nil,
 			Connection = nil,
 			DefaultCursor = "rbxasset://textures/ArrowFarCursor.png"
-		}), data) :: Class;
+		}), data) :: Class
 	end;
 	
-	local newCursor = CustomCursor(50);
+	local newCursor = CustomCursor(50)
 	
+	
+	local PressedLocally, HoveringLocally = false, false
 	script.Parent.MouseEnter:Connect(function()
-		MouseEntered = true
+		__ScreenGui:SetAttribute("MouseEntered", true)
+		HoveringLocally = true
 		newCursor:set("rbxasset://textures/StudioUIEditor/icon_resize2.png")
 	end)
 	
 	script.Parent.MouseLeave:Connect(function()
-		MouseEntered = false
+		HoveringLocally = false
+		__ScreenGui:SetAttribute("MouseEntered", false)
 	end)
 	
 	
 	Input.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if MouseEntered and not Pressed then
-				Pressed = true
+			if not PressedLocally and HoveringLocally then
+				__ScreenGui:SetAttribute("Pressed", true)
+				PressedLocally = true
 				SavedPosition = Vector2.new(Mouse.X, 0)
 			end
 		end
@@ -264,19 +277,19 @@ local script = UI["b"]
 	
 	Input.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			Pressed = false
+			PressedLocally = false
+			__ScreenGui:SetAttribute("Pressed", false)
 		end
 	end)
 	
 	Input.InputChanged:Connect(function(input: InputObject, gameProcessedEvent: boolean)
-		if Pressed and SavedPosition then
-			local ScreenGui = script:FindFirstAncestorWhichIsA("ScreenGui")
+		if PressedLocally and SavedPosition then
 			local Frame = script.Parent.Parent.Parent;
-			local UIScale = ScreenGui.UIScale
+			local UIScale = __ScreenGui.UIScale
 	
 			local screenWidth = workspace.CurrentCamera.ViewportSize.X
 			local Calc = math.clamp(Mouse.X / UIScale.Scale, 0, screenWidth)
-			
+	
 			local SavedPosition = Vector2.new(Calc, Frame.UISizeConstraint.MaxSize.Y)
 	
 			game.TweenService:Create(
@@ -287,9 +300,12 @@ local script = UI["b"]
 				}
 			):Play()
 		end;
-		
-		if not Pressed and not MouseEntered then
-			newCursor:default()
+	
+		if not __ScreenGui:GetAttribute("Pressed") 
+			and not __ScreenGui:GetAttribute("MouseEntered") then
+			if newCursor.ImageLabel ~= newCursor.DefaultCursor then
+				newCursor:default()
+			end;
 		end;
 	end)
 end
@@ -303,9 +319,8 @@ local script = UI["d"]
 	local Players = game:GetService("Players")
 	local Mouse = Players.LocalPlayer:GetMouse()
 	
+	local __ScreenGui = script:FindFirstAncestorWhichIsA("ScreenGui")
 	local SavedPosition = Vector2.new();
-	local MouseEntered, Pressed = false, false;
-	local DefaultMouseIcon = Input.MouseIcon
 	
 	local function AutoScaleGui(
 		uiScale: UIScale, 
@@ -335,14 +350,14 @@ local script = UI["d"]
 			Connection: RBXScriptConnection,
 			DefaultCursor: string
 		};
-		
+	
 		type Meta = {
 			set: (self: Class, Image: string) -> nil,
 			default: (self: Class) -> nil,
 			toggle: (self: Class) -> nil,
 			disable: (self: Class) -> nil
 		} & Class;
-		
+	
 		local data = {
 			set = function(self: Meta, Image: string)
 				Content:PreloadAsync({ Image });
@@ -357,38 +372,40 @@ local script = UI["d"]
 			disable = function(self: Meta)
 				self.Connection:Disconnect();
 				self.ScreenGui:Destroy();
-				
+	
 				Input.MouseIconEnabled = true;
 			end
 		};
-		
+	
 		data.__index = data;
 		data.__metatable = "getmetatable() -> Is not allowed.";
-		
+	
 		return setmetatable((function(this: Meta)
 			Input.MouseIconEnabled = false;
-			
+	
 			local Parent: Instance = game:FindFirstChild("CoreGui") 
 				or game.Players.LocalPlayer.PlayerGui;
-			
-			if Parent:FindFirstChild("CustomCursor") then
-				Parent.CustomCursor:Destroy();
-			end;
-			
-			this.ScreenGui = Instance.new("ScreenGui", Parent);
+	
+			this.ScreenGui = Parent:FindFirstChild("CustomCursor")
+			if this.ScreenGui then
+				this.ImageLabel = this.ScreenGui:FindFirstChild("ImageLabel")
+				this.UIScale = this.ScreenGui:FindFirstChild("UIScale")
+			end
+	
+			this.ScreenGui = this.ScreenGui or Instance.new("ScreenGui", Parent);
 			this.ScreenGui.Name = "CustomCursor";
 			this.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 			this.ScreenGui.DisplayOrder = 99999999;
-			
-			this.UIScale = Instance.new("UIScale", this.ScreenGui)
+	
+			this.UIScale = this.UIScale or Instance.new("UIScale", this.ScreenGui)
 			AutoScaleGui(this.UIScale, this.ScreenGui, 1, false)
-			
-			this.ImageLabel = Instance.new("ImageLabel", this.ScreenGui);
+	
+			this.ImageLabel = this.ImageLabel or Instance.new("ImageLabel", this.ScreenGui);
 			this.ImageLabel.BackgroundTransparency = 1;
 			this.ImageLabel.Interactable = false;
 			this.ImageLabel.Image = this.DefaultCursor;
 			this.ImageLabel.Size = UDim2.fromOffset(SizeInOffset, SizeInOffset);
-			
+	
 			this.Connection = Input.InputChanged:Connect(function(input: InputObject)
 				if input.UserInputType == Enum.UserInputType.MouseMovement then
 					this.ImageLabel.Position = UDim2.fromOffset(
@@ -397,7 +414,7 @@ local script = UI["d"]
 					);
 				end;
 			end);
-			
+	
 			return this;
 		end)({ 
 			ScreenGui = nil, 
@@ -405,25 +422,29 @@ local script = UI["d"]
 			UIScale = nil,
 			Connection = nil,
 			DefaultCursor = "rbxasset://textures/ArrowFarCursor.png"
-		}), data) :: Class;
+		}), data) :: Class
 	end;
 	
-	local newCursor = CustomCursor(50);
+	local newCursor = CustomCursor(50)
 	
+	local PressedLocally, HoveringLocally = false, false
 	script.Parent.MouseEnter:Connect(function()
-		MouseEntered = true
+		__ScreenGui:SetAttribute("MouseEntered", true)
+		HoveringLocally = true
 		newCursor:set("rbxasset://textures/StudioUIEditor/icon_resize4.png")
 	end)
 	
 	script.Parent.MouseLeave:Connect(function()
-		MouseEntered = false
+		HoveringLocally = false
+		__ScreenGui:SetAttribute("MouseEntered", false)
 	end)
 	
 	
 	Input.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if MouseEntered and not Pressed then
-				Pressed = true
+			if not PressedLocally and HoveringLocally then
+				__ScreenGui:SetAttribute("Pressed", true)
+				PressedLocally = true
 				SavedPosition = Vector2.new(Mouse.X, 0)
 			end
 		end
@@ -431,15 +452,15 @@ local script = UI["d"]
 	
 	Input.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			Pressed = false
+			PressedLocally = false
+			__ScreenGui:SetAttribute("Pressed", false)
 		end
 	end)
 	
 	Input.InputChanged:Connect(function(input: InputObject, gameProcessedEvent: boolean)
-		if Pressed and SavedPosition then
-			local ScreenGui = script:FindFirstAncestorWhichIsA("ScreenGui")
+		if PressedLocally and SavedPosition then
 			local Frame = script.Parent.Parent.Parent;
-			local UIScale = ScreenGui.UIScale
+			local UIScale = __ScreenGui.UIScale
 	
 			local screenWidth = workspace.CurrentCamera.ViewportSize.Y
 			local Calc = math.clamp(Mouse.Y / UIScale.Scale, 0, screenWidth)
@@ -455,8 +476,11 @@ local script = UI["d"]
 			):Play()
 		end;
 		
-		if not Pressed and not MouseEntered then
-			newCursor:default()
+		if not __ScreenGui:GetAttribute("Pressed") 
+			and not __ScreenGui:GetAttribute("MouseEntered") then
+			if newCursor.ImageLabel ~= newCursor.DefaultCursor then
+				newCursor:default()
+			end;
 		end;
 	end)
 end
