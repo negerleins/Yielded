@@ -2,6 +2,8 @@
 
 -- // INSTANCES: 17 | SCRIPTS: 3 | MODULES: 0 \\ --
 
+local UI = {}
+
 local a = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 if a:FindFirstChild("Yielded") then
 	a.Yielded:Destroy()
