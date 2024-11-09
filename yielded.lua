@@ -60,7 +60,7 @@ UI["7"]["FlexMode"] = Enum.UIFlexMode.Fill
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UISizeConstraint \\ --
 UI["8"] = Instance.new("UISizeConstraint", UI["5"])
 UI["8"]["MinSize"] = Vector2.new(25, 25)
-UI["8"]["MaxSize"] = Vector2.new(263, 350.39999)
+UI["8"]["MaxSize"] = Vector2.new(728, 350.39999)
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.Screen.Frame.UIEditorResizeHandleParent \\ --
 UI["9"] = Instance.new("Frame", UI["5"])
@@ -118,7 +118,7 @@ UI["e"]["Name"] = [[ResizeHandle_N]]
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale \\ --
 UI["f"] = Instance.new("UIScale", UI["1"])
-UI["f"]["Scale"] = 2
+
 
 -- // Players.CheckCashedV8.PlayerGui.Yielded.UIScale.AutoScale \\ --
 UI["10"] = Instance.new("LocalScript", UI["f"])
@@ -271,7 +271,7 @@ local script = UI["b"]
 			local UIScale = script.Parent.Parent.Parent.Parent.Parent.UIScale
 	
 			local screenWidth = workspace.CurrentCamera.ViewportSize.X
-			local Calc = math.clamp(Mouse.X - math.round(Frame.AbsoluteSize.X) / 2, 0, screenWidth)
+			local Calc = math.clamp(Mouse.X / UIScale.Scale, 0, screenWidth)
 	
 			local SavedPosition = Vector2.new(Calc, Frame.AbsoluteSize.Y)
 	
