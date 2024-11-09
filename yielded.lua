@@ -1,7 +1,3 @@
--- // GUI TO LUA \\ --
-
--- // INSTANCES: 17 | SCRIPTS: 3 | MODULES: 0 \\ --
-
 local UI = {}
 
 local a = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
